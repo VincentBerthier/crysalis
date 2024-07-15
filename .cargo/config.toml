@@ -1,0 +1,16 @@
+
+[build]
+# jobs = 8
+target = "x86_64-crysalis.json"
+rustflags = ["--cfg", "tokio_unstable"]
+
+[target.'cfg(target_os = "none")']
+runner = "bootimage runner"
+
+[unstable]
+codegen-backend = true
+build-std-features = ["compiler-builtins-mem"]
+build-std = ["core", "compiler_builtins"]
+
+[profile.x86_64-unknown-linux-gnu.dev]
+codegen-backend = "cranelift"

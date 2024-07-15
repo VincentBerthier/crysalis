@@ -1,0 +1,18 @@
+[package]
+name = "crysalis"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Vincent Berthier <vincent.berthier@posteo.org>"]
+
+[dependencies]
+bootloader = "=0.9"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+[workspace.metadata.spellcheck]
+config = ".cargo/spellcheck.toml"
