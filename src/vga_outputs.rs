@@ -3,7 +3,7 @@
 // Creation date: Thursday 18 July 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Thursday 18 July 2024 @ 21:16:47
+// Last modified: Thursday 18 July 2024 @ 23:53:30
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -26,13 +26,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use core::fmt;
+use core::{array::from_fn, fmt};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
 
-use crate::VGA_MMIO;
+const VGA_MMIO: u64 = 0xb8000;
 
 lazy_static! {
     /// Static text writer to the screen.
@@ -51,7 +51,6 @@ lazy_static! {
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
-#[expect(dead_code, reason = "not implemented yet")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Color {
@@ -183,18 +182,10 @@ impl Writer {
     }
 
     fn new_line(&mut self) {
-        for row in 1..BUFFER_HEIGHT {
-            for col in 0..BUFFER_WIDTH {
-                self.buffer.chars[row - 1][col].write(self.buffer.chars[row][col].read());
-            }
-        }
-        self.clear_row(BUFFER_HEIGHT - 1);
-        self.column_position = 0;
-    }
-
-    fn clear_row(&mut self, row: usize) {
+        self.buffer.chars.rotate_left(1);
         let blank = ScreenChar::blank(self.color_code);
-        (0..BUFFER_WIDTH).for_each(|col| self.buffer.chars[row][col].write(blank));
+        self.buffer.chars[BUFFER_HEIGHT - 1] = from_fn(|_| Volatile::new(blank));
+        self.column_position = 0;
     }
 }
 
@@ -226,4 +217,34 @@ pub fn _print(args: fmt::Arguments) {
         reason = "it can never fail since we only return Ok(())"
     )]
     WRITER.lock().write_fmt(args).unwrap();
+}
+
+#[test_case]
+fn println() {
+    println!("test_println! output");
+}
+
+#[test_case]
+fn print_many_lines() {
+    (0..200).for_each(|_| println!("print_many_lines output"));
+}
+
+#[test_case]
+fn print_long_line() {
+    let string = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    println!("{string}{string}{string}{string}");
+}
+
+#[test_case]
+fn check_output() {
+    let string = "Some test string that fits on a single line";
+    println!("{}", string);
+    string.chars().enumerate().for_each(|(i, character)| {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+        assert_eq!(
+            char::from(screen_char.ascii_character),
+            character,
+            "printed values are different…"
+        );
+    });
 }
