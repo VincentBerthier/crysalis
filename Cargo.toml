@@ -20,6 +20,10 @@ x86_64 = "0.15.1"
 [profile.release]
 panic = "abort"
 
+[[test]]
+name = "stack_overflow"
+harness = false
+
 # Makes tests quite Qemu instead of going into the rest of the kernel.
 [package.metadata.bootimage]
 test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio", "-display", "none"]
@@ -106,7 +110,7 @@ suspicious_xor_used_as_pow = { level = "warn", priority = 1 }
 tests_outside_test_module = { level = "warn", priority = 1 }
 todo = { level = "warn", priority = 1 }
 try_err = { level = "warn", priority = 1 }
-undocumented_unsafe_blocks = { level = "warn", priority = 1 }
+# undocumented_unsafe_blocks = { level = "warn", priority = 1 }
 unimplemented = { level = "warn", priority = 1 }
 unnecessary_safety_comment = { level = "warn", priority = 1 }
 unnecessary_safety_doc = { level = "warn", priority = 1 }
