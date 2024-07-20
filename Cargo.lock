@@ -36,6 +36,7 @@ checksum = "365861702868e2a37b4247aaecc7bd8f4389baec8d025497ad8ba7ff37ee9440"
 name = "crysalis"
 version = "0.1.0"
 dependencies = [
+ "bit_field",
  "bootloader",
  "lazy_static",
  "spin",

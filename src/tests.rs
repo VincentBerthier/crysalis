@@ -30,6 +30,10 @@ use core::any::type_name;
 
 use crate::{exit_qemu, serial_print, serial_println, QemuExitCode};
 
+/// Testing driver for the kernel. Will be called externally.
+///
+/// # Parameters
+/// * `tests` - List of tests.
 pub fn test_runner(tests: &[&dyn Testable]) {
     serial_println!("Running {} tests", tests.len());
     for test in tests {
@@ -41,8 +45,11 @@ pub fn test_runner(tests: &[&dyn Testable]) {
 
 /// A trait implemented for all tests.
 pub trait Testable {
+    /// Run the test.
     fn run(&self);
+    /// Display the starting test message.
     fn start(&self);
+    /// Display the test success message.
     fn success(&self);
 }
 

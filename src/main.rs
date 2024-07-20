@@ -36,11 +36,14 @@
 #![reexport_test_harness_main = "test_main"] // otherwise it launches the kernel
 
 use core::panic::PanicInfo;
-use crysalis::println;
+use crysalis::{init, println};
+use x86_64::instructions::interrupts::int3;
 
 /// The entrypoint of the OS
 #[no_mangle] // Don't mangle the name of the function, needed to be able to launch it.
 pub extern "C" fn _start() -> ! {
+    init();
+
     println!("Hello world! Line 1");
     println!("Hello world! Line 2");
     println!("Hello world! Line 3");
@@ -72,9 +75,13 @@ pub extern "C" fn _start() -> ! {
     let string = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     println!("{string}{string}{string}{string}");
 
+    // Cause a breakpoint interrupt
+    int3();
+
     #[cfg(test)]
     test_main();
 
+    println!("all good!");
     loop {}
 }
 
@@ -92,7 +99,8 @@ fn panic(info: &PanicInfo) -> ! {
     crysalis::test_panic_handler(info)
 }
 
+#[expect(clippy::missing_panics_doc, reason = "…")]
 #[test_case]
 fn trivial_assertion() {
-    assert!(true);
+    assert_eq!(env!("CARGO_PKG_VERSION"), "0.1.0", "wrong version");
 }

@@ -51,24 +51,41 @@ lazy_static! {
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
+/// Color codes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Color {
+    /// Black.
     Black = 0,
+    /// Blue
     Blue = 1,
+    /// Green
     Green = 2,
+    /// Cyan
     Cyan = 3,
+    /// Red
     Red = 4,
+    /// Magenta
     Magenta = 5,
+    /// Brown
     Brown = 6,
+    /// `LightGray`
     LightGray = 7,
+    /// `DarkGray`
     DarkGray = 8,
+    /// `LightBlue`
     LightBlue = 9,
+    /// `LightGreen`
     LightGreen = 10,
+    /// `LightCyan`
     LightCyan = 11,
+    /// `LightRed`
     LightRed = 12,
+    /// Pink
     Pink = 13,
+    /// Yellow
     Yellow = 14,
+    /// White
     White = 15,
 }
 
@@ -235,6 +252,7 @@ fn print_long_line() {
     println!("{string}{string}{string}{string}");
 }
 
+#[expect(clippy::missing_panics_doc, reason = "…")]
 #[test_case]
 fn check_output() {
     let string = "Some test string that fits on a single line";
