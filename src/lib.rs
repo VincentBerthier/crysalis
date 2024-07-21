@@ -39,27 +39,36 @@
 
 use core::panic::PanicInfo;
 
-use x86_64::instructions::hlt;
+#[cfg(test)]
+use bootloader::entry_point;
+use bootloader::BootInfo;
+use x86_64::{instructions::hlt, structures::paging::OffsetPageTable, VirtAddr};
 
 /// CPU interrupts handling.
 pub mod interrupts;
 /// I/O functionalities
 pub mod io;
+/// Paging handling.
+pub mod memory;
 /// Test handlers.
 pub mod tests;
 
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
 /// Entry point for `cargo test`
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    init();
+fn test_kernel_main(boot_info: &'static BootInfo) -> ! {
+    let _mapper = init(boot_info);
     test_main();
     hlt_loop();
 }
 
 /// Initializes the kernel.
-pub fn init() {
+#[must_use]
+pub fn init(boot_info: &'static BootInfo) -> OffsetPageTable<'static> {
     interrupts::init();
+    unsafe { memory::init(VirtAddr::new(boot_info.physical_memory_offset)) }
 }
 
 /// Panic handler for tests.

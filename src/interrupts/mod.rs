@@ -2,10 +2,11 @@ use lazy_static::lazy_static;
 use pic::{keyboard_interrupt_handler, timer_interrupt_handler, InterruptIndex};
 use x86_64::{
     instructions::interrupts as x86_64_interrupts,
-    structures::idt::{InterruptDescriptorTable, InterruptStackFrame},
+    registers::control::Cr2,
+    structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode},
 };
 
-use crate::println;
+use crate::{hlt_loop, println};
 
 /// The Interrupt Stack Tables & Task State Segments definitions
 /// for the Global Descriptor Table.
@@ -23,6 +24,8 @@ lazy_static! {
                 .set_handler_fn(double_fault_handler)
                 .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
+        idt.page_fault.set_handler_fn(page_fault_handler);
+
         // Hardware interrupts
         idt[InterruptIndex::Timer.as_u8()]
             .set_handler_fn(timer_interrupt_handler);
@@ -48,6 +51,17 @@ extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
 #[expect(clippy::panic, reason = "we want it to panic if we reach that step.")]
 extern "x86-interrupt" fn double_fault_handler(stack_frame: InterruptStackFrame, _code: u64) -> ! {
     panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
+}
+
+extern "x86-interrupt" fn page_fault_handler(
+    stack_frame: InterruptStackFrame,
+    error_code: PageFaultErrorCode,
+) {
+    println!("EXCEPTION: PAGE FAULT");
+    println!("Accessed Address: {:?}", Cr2::read());
+    println!("Error Code: {error_code:?}");
+    println!("{stack_frame:#?}");
+    hlt_loop();
 }
 
 #[test_case]

@@ -30,20 +30,37 @@
 
 #![no_std] // don't link to the standard library
 #![no_main] // disable all Rust-level entry points
-#![warn(missing_docs)]
 #![feature(custom_test_frameworks)] // Use a custom test framework since test is in std
 #![test_runner(crysalis::tests::test_runner)] // define the test runner as being a custom one.
 #![reexport_test_harness_main = "test_main"] // otherwise it launches the kernel
 
+use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
-use crysalis::{hlt_loop, init, println};
+use crysalis::{
+    hlt_loop, init,
+    memory::{self, BootInfoFrameAllocator},
+    println,
+};
+use x86_64::{structures::paging::Page, VirtAddr};
 
-/// The entrypoint of the OS
-#[no_mangle] // Don't mangle the name of the function, needed to be able to launch it.
-pub extern "C" fn _start() -> ! {
-    init();
+entry_point!(kernel_main);
 
+/// The (true) entrypoint of the OS
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
+    let mut mapper = init(boot_info);
     println!("Hello world!");
+
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+
+    // map an unused page
+    let page = Page::containing_address(VirtAddr::new(0x0dea_dbee_f000));
+    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
+
+    // write the string `New!` to the screen through the new mapping
+    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
+    unsafe {
+        page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e);
+    }
 
     #[cfg(test)]
     test_main();
