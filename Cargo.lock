@@ -39,6 +39,8 @@ dependencies = [
  "bit_field",
  "bootloader",
  "lazy_static",
+ "pc-keyboard",
+ "pic8259",
  "spin",
  "uart_16550",
  "volatile 0.2.6",
@@ -62,6 +64,21 @@ checksum = "07af8b9cdd281b7915f413fa73f29ebd5d55d0d3f0155584dade1ff18cea1b17"
 dependencies = [
  "autocfg",
  "scopeguard",
+]
+
+[[package]]
+name = "pc-keyboard"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed089a1fbffe3337a1a345501c981f1eb1e47e69de5a40e852433e12953c3174"
+
+[[package]]
+name = "pic8259"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62d9a86c292b165f757e47e7fd66855def189b2564609bc4203727b27c33db22"
+dependencies = [
+ "x86_64",
 ]
 
 [[package]]

@@ -239,6 +239,27 @@ pub fn _print(args: fmt::Arguments) {
     });
 }
 
+/// # Panics
+/// If the test fails…
+#[test_case]
+fn direct_output() {
+    use core::fmt::Write;
+
+    let string = "Some test string that fits on a single line";
+    interrupts::without_interrupts(|| {
+        let mut writer = WRITER.lock();
+        writeln!(writer, "\n{string}").expect("writeln failed");
+        for (i, character) in string.chars().enumerate() {
+            let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            assert_eq!(
+                char::from(screen_char.ascii_character),
+                character,
+                "mismatch between characters"
+            );
+        }
+    });
+}
+
 #[test_case]
 fn println() {
     println!("test_println! output");

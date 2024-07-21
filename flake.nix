@@ -38,7 +38,9 @@
         # config.allowUnfree = true;
         overlays = [(import rust-overlay)];
       };
-      rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+      rust = pkgs.rust-bin.nightly.latest.default.override {
+        extensions = ["rust-analyzer" "rust-src" "rust-docs" "llvm-tools" "rustc-codegen-cranelift-preview"];
+      };
       rustStable = pkgs.rust-bin.stable.latest.default;
 
       inherit (pkgs) lib;

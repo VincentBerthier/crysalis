@@ -1,21 +1,34 @@
 use lazy_static::lazy_static;
-use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
+use pic::{keyboard_interrupt_handler, timer_interrupt_handler, InterruptIndex};
+use x86_64::{
+    instructions::interrupts as x86_64_interrupts,
+    structures::idt::{InterruptDescriptorTable, InterruptStackFrame},
+};
 
 use crate::println;
 
 /// The Interrupt Stack Tables & Task State Segments definitions
 /// for the Global Descriptor Table.
 pub mod gdt;
+/// Hardware interrupts
+pub mod pic;
 
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
+        // Fault interrupts
         idt.breakpoint.set_handler_fn(breakpoint_handler);
         unsafe {
             idt.double_fault
                 .set_handler_fn(double_fault_handler)
                 .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
+        // Hardware interrupts
+        idt[InterruptIndex::Timer.as_u8()]
+            .set_handler_fn(timer_interrupt_handler);
+        idt[InterruptIndex::Keyboard.as_u8()]
+            .set_handler_fn(keyboard_interrupt_handler);
+
         idt
     };
 }
@@ -24,6 +37,8 @@ lazy_static! {
 pub fn init() {
     gdt::init();
     IDT.load();
+    pic::init();
+    x86_64_interrupts::enable();
 }
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {

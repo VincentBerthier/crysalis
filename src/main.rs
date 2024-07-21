@@ -36,60 +36,20 @@
 #![reexport_test_harness_main = "test_main"] // otherwise it launches the kernel
 
 use core::panic::PanicInfo;
-use crysalis::{init, println};
-use x86_64::instructions::interrupts::int3;
+use crysalis::{hlt_loop, init, println};
 
 /// The entrypoint of the OS
 #[no_mangle] // Don't mangle the name of the function, needed to be able to launch it.
 pub extern "C" fn _start() -> ! {
     init();
 
-    println!("Hello world! Line 1");
-    println!("Hello world! Line 2");
-    println!("Hello world! Line 3");
-    println!("Hello world! Line 4");
-    println!("Hello world! Line 5");
-    println!("Hello world! Line 6");
-    println!("Hello world! Line 8");
-    println!("Hello world! Line 9");
-    println!("Hello world! Line 10");
-    println!("Hello world! Line 11");
-    println!("Hello world! Line 12");
-    println!("Hello world! Line 13");
-    println!("Hello world! Line 14");
-    println!("Hello world! Line 15");
-    println!("Hello world! Line 16");
-    println!("Hello world! Line 17");
-    println!("Hello world! Line 18");
-    println!("Hello world! Line 19");
-    println!("Hello world! Line 20");
-    println!("Hello world! Line 21");
-    println!("Hello world! Line 22");
-    println!("Hello world! Line 23");
-    println!("Hello world! Line 24");
-    println!("Hello world! Line 25");
-    println!("Hello world! Line 26");
-    println!("Hello world! Line 27");
-    println!("Hello world! Line 28");
-    println!("Hello world! Line 29");
-    let string = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    println!("{string}{string}{string}{string}");
-
-    // Cause a breakpoint interrupt
-    int3();
-
-    fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed
-    }
-
-    // trigger a stack overflow
-    stack_overflow();
+    println!("Hello world!");
 
     #[cfg(test)]
     test_main();
 
     println!("all good!");
-    loop {}
+    hlt_loop();
 }
 
 /// Function called on a panic
@@ -97,7 +57,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{info}");
-    loop {}
+    hlt_loop();
 }
 
 #[cfg(test)]

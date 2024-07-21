@@ -39,14 +39,14 @@
 
 use core::panic::PanicInfo;
 
+use x86_64::instructions::hlt;
+
 /// CPU interrupts handling.
 pub mod interrupts;
-/// Write to the first serial port.
-pub mod serial;
+/// I/O functionalities
+pub mod io;
 /// Test handlers.
 pub mod tests;
-/// VGA display.
-pub mod vga_outputs;
 
 /// Entry point for `cargo test`
 #[cfg(test)]
@@ -54,7 +54,7 @@ pub mod vga_outputs;
 pub extern "C" fn _start() -> ! {
     init();
     test_main();
-    loop {}
+    hlt_loop();
 }
 
 /// Initializes the kernel.
@@ -70,7 +70,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("\x1B[31m[failed]\x1B[0m\n");
     serial_println!("{}", info);
     exit_qemu(QemuExitCode::Failed);
-    loop {} // still needed because the compiler doesn't know the above line exits
+    hlt_loop();
 }
 
 /// Function called on a panic during a test
@@ -78,6 +78,13 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     test_panic_handler(info)
+}
+
+/// [Hlt instruction](https://en.wikipedia.org/wiki/HLT_(x86_instruction)) loop.
+pub fn hlt_loop() -> ! {
+    loop {
+        hlt();
+    }
 }
 
 /// Exit codes for Qemu sent through the port-mapped IO.
