@@ -9,6 +9,7 @@ authors = ["Vincent Berthier <vincent.berthier@posteo.org>"]
 bit_field = "0.10.2"
 bootloader = { version = "=0.9", features = ["map_physical_memory"] }
 lazy_static = { version = "1.5.0", features = ["spin_no_std"] }
+linked_list_allocator = "0.10.5"
 pc-keyboard = "0.7.0"
 pic8259 = "0.11.0"
 spin = "0.9.8"
@@ -35,6 +36,7 @@ restriction = "allow" # activated individually below
 module_name_repetitions = { level = "allow", priority = 1 }
 used_underscore_binding = { level = "allow", priority = 1 }
 empty_loop = { level = "allow", priority = 1 }
+missing_panics_doc = { level = "allow", priority = 1 }
 
 # Restriction lints
 absolute_paths = { level = "warn", priority = 1 }
@@ -58,7 +60,7 @@ empty_drop = { level = "warn", priority = 1 }
 empty_structs_with_brackets = { level = "warn", priority = 1 }
 # error_impl_error = { level = "warn", priority = 1 }
 exit = { level = "warn", priority = 1 }
-expect_used = { level = "warn", priority = 1 }
+# expect_used = { level = "warn", priority = 1 }
 filetype_is_file = { level = "warn", priority = 1 }
 float_cmp_const = { level = "warn", priority = 1 }
 fn_to_numeric_cast_any = { level = "warn", priority = 1 }
@@ -79,7 +81,7 @@ lossy_float_literal = { level = "warn", priority = 1 }
 map_err_ignore = { level = "warn", priority = 1 }
 mem_forget = { level = "warn", priority = 1 }
 min_ident_chars = { level = "warn", priority = 1 }
-missing_assert_message = { level = "warn", priority = 1 }
+# missing_assert_message = { level = "warn", priority = 1 }
 missing_asserts_for_indexing = { level = "warn", priority = 1 }
 mixed_read_write_in_expression = { level = "warn", priority = 1 }
 multiple_inherent_impl = { level = "allow", priority = 1 }
@@ -87,7 +89,7 @@ multiple_inherent_impl = { level = "allow", priority = 1 }
 mutex_atomic = { level = "warn", priority = 1 }
 needless_raw_strings = { level = "warn", priority = 1 }
 panic_in_result_fn = { level = "warn", priority = 1 }
-panic = { level = "warn", priority = 1 }
+# panic = { level = "warn", priority = 1 }
 partial_pub_fields = { level = "warn", priority = 1 }
 print_stderr = { level = "warn", priority = 1 }
 print_stdout = { level = "warn", priority = 1 }

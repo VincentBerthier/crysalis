@@ -37,21 +37,30 @@
 #![no_std]
 #![warn(missing_docs)]
 
+extern crate alloc;
+
 use core::panic::PanicInfo;
 
 #[cfg(test)]
 use bootloader::entry_point;
 use bootloader::BootInfo;
-use x86_64::{instructions::hlt, structures::paging::OffsetPageTable, VirtAddr};
+use x86_64::{instructions::hlt, VirtAddr};
 
 /// CPU interrupts handling.
-pub mod interrupts;
+mod interrupts;
+/// Global heap allocator
+mod memory;
+/// Paging handling.
+mod paging;
+/// Test handlers.
+mod tests;
+
 /// I/O functionalities
 pub mod io;
-/// Paging handling.
-pub mod memory;
-/// Test handlers.
-pub mod tests;
+
+pub use memory::{init as init_heap, HEAP_SIZE};
+pub use paging::{init as init_paging, BootInfoFrameAllocator};
+pub use tests::test_runner;
 
 #[cfg(test)]
 entry_point!(test_kernel_main);
@@ -59,16 +68,17 @@ entry_point!(test_kernel_main);
 /// Entry point for `cargo test`
 #[cfg(test)]
 fn test_kernel_main(boot_info: &'static BootInfo) -> ! {
-    let _mapper = init(boot_info);
+    init(boot_info);
     test_main();
     hlt_loop();
 }
 
 /// Initializes the kernel.
-#[must_use]
-pub fn init(boot_info: &'static BootInfo) -> OffsetPageTable<'static> {
+pub fn init(boot_info: &'static BootInfo) {
     interrupts::init();
-    unsafe { memory::init(VirtAddr::new(boot_info.physical_memory_offset)) }
+    let mut mapper = unsafe { init_paging(VirtAddr::new(boot_info.physical_memory_offset)) };
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+    init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 }
 
 /// Panic handler for tests.

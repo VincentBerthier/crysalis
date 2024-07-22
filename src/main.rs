@@ -31,36 +31,44 @@
 #![no_std] // don't link to the standard library
 #![no_main] // disable all Rust-level entry points
 #![feature(custom_test_frameworks)] // Use a custom test framework since test is in std
-#![test_runner(crysalis::tests::test_runner)] // define the test runner as being a custom one.
+#![test_runner(crysalis::test_runner)] // define the test runner as being a custom one.
 #![reexport_test_harness_main = "test_main"] // otherwise it launches the kernel
 
-use bootloader::{entry_point, BootInfo};
-use core::panic::PanicInfo;
-use crysalis::{
-    hlt_loop, init,
-    memory::{self, BootInfoFrameAllocator},
-    println,
-};
-use x86_64::{structures::paging::Page, VirtAddr};
+extern crate alloc;
 
+use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
+use bootloader::{entry_point, BootInfo};
+use core::{mem::drop, panic::PanicInfo};
+use crysalis::{hlt_loop, init, println};
 entry_point!(kernel_main);
 
 /// The (true) entrypoint of the OS
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    let mut mapper = init(boot_info);
+    init(boot_info);
     println!("Hello world!");
 
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+    let x = Box::new(41);
+    println!("heap value at {x:p}");
 
-    // map an unused page
-    let page = Page::containing_address(VirtAddr::new(0x0dea_dbee_f000));
-    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
-
-    // write the string `New!` to the screen through the new mapping
-    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
-    unsafe {
-        page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e);
+    // create a dynamically sized vector
+    let mut vec = Vec::new();
+    for i in 0..500 {
+        vec.push(i);
     }
+    println!("vec at {:p}", vec.as_slice());
+
+    // create a reference counted vector -> will be freed when count reaches 0
+    let reference_counted = Rc::new(vec![1, 2, 3]);
+    let cloned_reference = Rc::clone(&reference_counted);
+    println!(
+        "current reference count is {}",
+        Rc::strong_count(&cloned_reference)
+    );
+    drop(reference_counted);
+    println!(
+        "reference count is {} now",
+        Rc::strong_count(&cloned_reference)
+    );
 
     #[cfg(test)]
     test_main();
@@ -83,7 +91,6 @@ fn panic(info: &PanicInfo) -> ! {
     crysalis::test_panic_handler(info)
 }
 
-#[expect(clippy::missing_panics_doc, reason = "…")]
 #[test_case]
 fn trivial_assertion() {
     assert_eq!(env!("CARGO_PKG_VERSION"), "0.1.0", "wrong version");
