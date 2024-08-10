@@ -3,7 +3,7 @@
 // Creation date: Thursday 18 July 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Saturday 10 August 2024 @ 14:42:45
+// Last modified: Saturday 10 August 2024 @ 18:24:40
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -53,6 +53,8 @@ mod allocator;
 mod interrupts;
 /// Paging handling.
 mod paging;
+/// Multitasking implementation.
+pub mod tasks;
 /// Test handlers.
 mod tests;
 

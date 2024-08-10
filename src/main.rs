@@ -3,7 +3,7 @@
 // Creation date: Monday 15 July 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Thursday 18 July 2024 @ 23:55:34
+// Last modified: Saturday 10 August 2024 @ 18:53:18
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -39,12 +39,26 @@ extern crate alloc;
 use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{entry_point, BootInfo};
 use core::{mem::drop, panic::PanicInfo};
-use crysalis::{hlt_loop, init, println};
+use crysalis::{
+    hlt_loop, init, println,
+    tasks::{executor::Executor, keyboard, simple_executor::SimpleExecutor, Task},
+};
 entry_point!(kernel_main);
+
+#[expect(clippy::unused_async)]
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {number}");
+}
 
 /// The (true) entrypoint of the OS
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     init(boot_info);
+
     println!("Hello world!");
 
     let x = Box::new(41);
@@ -74,7 +88,11 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     test_main();
 
     println!("all good!");
-    hlt_loop();
+
+    let mut executor = Executor::default();
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
 }
 
 /// Function called on a panic
