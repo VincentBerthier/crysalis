@@ -3,7 +3,7 @@
 // Creation date: Saturday 10 August 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Saturday 10 August 2024 @ 14:43:31
+// Last modified: Saturday 10 August 2024 @ 16:27:59
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -30,11 +30,11 @@ use x86_64::structures::paging::mapper::MapToError;
 use x86_64::structures::paging::{FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB};
 use x86_64::VirtAddr;
 
-use super::linked_list::LinkedListAllocator;
+use super::fixed_size_block::FixedSizeBlockAllocator;
 use super::lock::Locked;
 
 #[global_allocator]
-static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
+static ALLOCATOR: Locked<FixedSizeBlockAllocator> = Locked::new(FixedSizeBlockAllocator::new());
 
 pub const HEAP_START: u64 = 0x_4444_4444_0000;
 /// Size allocated for the kernel’s heap
@@ -66,10 +66,10 @@ where
     }
 
     unsafe {
-        #[expect(clippy::cast_possible_truncation, reason = "heap is 100KiB")]
+        #[expect(clippy::cast_possible_truncation)]
         ALLOCATOR
             .lock()
-            .init(heap_start.as_u64() as usize, HEAP_SIZE as usize);
+            .init(heap_start.as_mut_ptr(), HEAP_SIZE as usize);
     }
 
     Ok(())

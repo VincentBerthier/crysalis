@@ -3,7 +3,7 @@
 // Creation date: Saturday 10 August 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Saturday 10 August 2024 @ 14:41:47
+// Last modified: Saturday 10 August 2024 @ 15:54:49
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -26,6 +26,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+mod fixed_size_block;
 mod linked_list;
 mod lock;
 mod memory;

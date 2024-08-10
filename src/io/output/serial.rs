@@ -1,9 +1,9 @@
-// File: src/serial.rs
+// File: src/io/output/serial.rs
 // Project: Crysalis OS
 // Creation date: Thursday 18 July 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Thursday 18 July 2024 @ 22:48:25
+// Last modified: Saturday 10 August 2024 @ 16:23:29
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -45,8 +45,8 @@ lazy_static! {
     };
 }
 
-#[expect(clippy::absolute_paths, reason = "macro")]
-#[expect(clippy::expect_used, reason = "we want the whole thing to crash")]
+#[expect(clippy::absolute_paths)]
+#[expect(clippy::expect_used)]
 #[doc(hidden)]
 pub fn _print(args: ::core::fmt::Arguments) {
     use core::fmt::Write;

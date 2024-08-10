@@ -1,9 +1,9 @@
-// File: src/vga_outputs.rs
+// File: src/io/output/vga.rs
 // Project: Crysalis OS
 // Creation date: Thursday 18 July 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Thursday 18 July 2024 @ 23:53:30
+// Last modified: Saturday 10 August 2024 @ 16:23:29
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -230,10 +230,7 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    #[expect(
-        clippy::unwrap_used,
-        reason = "it can never fail since we only return Ok(())"
-    )]
+    #[expect(clippy::unwrap_used)]
     interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
     });
@@ -276,7 +273,7 @@ fn print_long_line() {
     println!("{string}{string}{string}{string}");
 }
 
-#[expect(clippy::missing_panics_doc, reason = "…")]
+#[expect(clippy::missing_panics_doc)]
 #[test_case]
 fn check_output() {
     let string = "Some test string that fits on a single line";
