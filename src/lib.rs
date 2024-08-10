@@ -3,7 +3,7 @@
 // Creation date: Thursday 18 July 2024
 // Author: Vincent Berthier <test.test>
 // -----
-// Last modified: Thursday 18 July 2024 @ 23:55:16
+// Last modified: Saturday 10 August 2024 @ 14:42:45
 // Modified by: Vincent Berthier
 // -----
 // Copyright (c) 2024 <Vincent Berthier>
@@ -32,6 +32,7 @@
 #![cfg_attr(test, no_main)]
 #![feature(custom_test_frameworks)]
 #![feature(abi_x86_interrupt)]
+#![feature(const_mut_refs)]
 #![test_runner(crate::tests::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 #![no_std]
@@ -46,10 +47,10 @@ use bootloader::entry_point;
 use bootloader::BootInfo;
 use x86_64::{instructions::hlt, VirtAddr};
 
+/// Global heap allocator
+mod allocator;
 /// CPU interrupts handling.
 mod interrupts;
-/// Global heap allocator
-mod memory;
 /// Paging handling.
 mod paging;
 /// Test handlers.
@@ -58,7 +59,7 @@ mod tests;
 /// I/O functionalities
 pub mod io;
 
-pub use memory::{init as init_heap, HEAP_SIZE};
+pub use allocator::{init as init_heap, HEAP_SIZE};
 pub use paging::{init as init_paging, BootInfoFrameAllocator};
 pub use tests::test_runner;
 
